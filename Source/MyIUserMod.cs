@@ -66,14 +66,14 @@ namespace DemoMod
 					if(inrange(position)){
 						Vector3 forward = orientation * Vector3.forward;
 						Vector3 up = orientation * Vector3.up;
-						Vector3 right = orientation * Vector3.right;
+						
 						float len = vehicles[i].CalculateTotalLength((ushort)i);
 						if(len > 10){
 							len = 10;
 						}
 						lichten[n].transform.position = position + 1f*up + len*forward*0.5f; 
 						lichten[n].transform.LookAt(position + len*forward*1.0f); 
-						//lichten[n].transform.Rotate(right*90);
+						
 						lichten[n].SetActive(true);  
 						lightComp = lichten[n].GetComponent<Light>();
 						lightComp.type = LightType.Spot;
@@ -99,7 +99,7 @@ namespace DemoMod
 					if(inrange(position)  && speed.magnitude<6){
 						Vector3 forward = orientation * Vector3.forward;
 						Vector3 up = orientation * Vector3.up;
-						Vector3 right = orientation * Vector3.right;
+						
 						float len = vehicles[i].CalculateTotalLength((ushort)i);
 						if(len > 10){
 							len = 10;
