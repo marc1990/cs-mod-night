@@ -21,10 +21,8 @@ namespace DemoMod
 		private int[] build_props,lane_props;
 		public int max_cars,max_lane_props,max_building_props;
 		public int count_build_prop,count_lane_prop;
-
-		private int staat;
-		private int laatse;
 		public int updated_segment_last;
+		
         public string Name 
         {
             get { return "Light up the city"; } 
@@ -47,13 +45,10 @@ namespace DemoMod
 			
 			// Add the light component
 			Light lightComp = lightGameObject.AddComponent<Light>();
-			//lightGameObject.tag = "MainLight"; 
 			lightComp.shadows = LightShadows.None;
 			lightGameObject.SetActive(false); 
-			//lightGameObject.enabled = false; 
 		}
 		public void draw_lights(int mode){
-			//clean_lights();
 			ChirpLog.Debug("Start"); 
 			Color kleur = Color.white;
 			Vector3 position  = Vector3.zero;
@@ -249,54 +244,46 @@ namespace DemoMod
 				 }
 			}
 			
-			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, n + " Lights"); 
-			//ChirpLog.Flush();
 			for(i = n;n<max_cars;n++){
 				lichten[n].SetActive(false);
-				//lichten[n].enabled = false; 
+				
 			}
-
-			//ChirpLog.Flush();
-			
 		}
 		//will check if the object is on screen + marge(s)
 		public bool inrange(Vector3 position){
 			var origin = Camera.main.WorldToScreenPoint (position); 
 			var cam_info = Camera.main;
 			float s = 1.1f; 
-			if(origin.x < 1920*s && origin.x > -1920*(s-1) && origin.y < 1080*s && origin.y > -1080*(s-1) && origin.z < 1000+cam_info.transform.position.y*1.4f){
+			if(origin.x < 1920*s && origin.x > -1920*(s-1) && origin.y < 1080*s && origin.y > -1080*(s-1) && origin.z < 500+cam_info.transform.position.y*1.4f && origin.z > -10){
 				return true;
 			}
 			return false;
 		}
+		//Build prop list. Is run at start. The function takes some time, so it shouldn't run everytime a frame is render.
 		public void build_props_list(){
 			int i,j;
 			int n=0; 
 			for(i = 0;i<buildings.Length;i++){
-				//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, max_cars + " build props!");  
 				if(buildings[i].Info != null){
-				if(buildings[i].Info.m_alreadyUnlocked == false){
-				//ChirpLog.Debug("Building" + i + ":"+buildings[i].Info+ "/" + buildings[i].Info.m_alreadyUnlocked );
-				var propsjes = buildings[i].Info.m_props;
-				for(j = 0;j<propsjes.Length;j++){
-					if(propsjes[j].m_prop != null){
-					//ChirpLog.Debug("prop" + j + ":"+ propsjes[j].m_prop + "/" +   propsjes[j].m_prop.GetLocalizedTitle());
-					if(propsjes[j].m_prop.GetLocalizedTitle() == "Street Lamp #2" || propsjes[j].m_prop.GetLocalizedTitle() == "Street Lamp #1"){
-						build_props[n] = i; 
-						build_props[n+max_building_props] = j;
-						n++;
-						
+					if(buildings[i].Info.m_alreadyUnlocked == false){
+						var propsjes = buildings[i].Info.m_props;
+						for(j = 0;j<propsjes.Length;j++){
+							if(propsjes[j].m_prop != null){
+								if(propsjes[j].m_prop.GetLocalizedTitle() == "Street Lamp #2" || propsjes[j].m_prop.GetLocalizedTitle() == "Street Lamp #1"){
+									build_props[n] = i; 
+									build_props[n+max_building_props] = j;
+									n++;
+								}
+							}
+						}
 					}
-					}
-				}
-				}
 				}
 				if(n == max_building_props){
 					i = 100000;
-				 }
+				}
 			}
 			count_build_prop = n;
-			ChirpLog.Debug("buildings:"+count_build_prop);
+			ChirpLog.Debug("There were "+count_build_prop + " building props lamps.");
             ChirpLog.Flush();
 		}
 		public void start_game(){
@@ -306,79 +293,39 @@ namespace DemoMod
 			segments = netMan.m_segments.m_buffer;
 			clean_lights();
 			Dim_all();
-			//uic = v.AddUIComponent (typeof(ExamplePanel));
-			//int i=0;
-			//int j=0;
 			int n=0;
-			laatse = 0;
 			Vector3 position  = Vector3.zero;
 			Quaternion orientation = Quaternion.identity;
-			max_cars = 256;//lights
+			max_cars = 256;//is equal to max number of lights
 			max_lane_props = 2048 ; 
 			max_building_props = 256;
-			staat = 0;
 			lichten = new GameObject[max_cars];
 			build_props = new int[max_building_props*2];
 			lane_props = new int[max_lane_props*3];
 			for(n = 0;n<max_cars;n++){
-				
-					
-					add_light(position,orientation,n,n);
-			
-					
-				 
+				add_light(position,orientation,n,n);
 			}
 			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, max_cars + " lights add!"); 
+			//init build props array
 			for(n = 0;n<max_building_props;n++){
-				
-					//vehicles[i].GetSmoothPosition((ushort)i, out position, out orientation);
-					build_props[n] = 0; 
-					build_props[n+max_building_props] = 0;
-					
-			 
-					
-				 
+				build_props[n] = 0; 
+				build_props[n+max_building_props] = 0;
 			}
+			//init lane props array
 			for(n = 0;n<max_lane_props;n++){
-				
-
-					lane_props[n] = 0;
-					lane_props[n+max_lane_props] = 0;
-					lane_props[n+max_lane_props*2] = 0;
-					
+				lane_props[n] = 0;
+				lane_props[n+max_lane_props] = 0;
+				lane_props[n+max_lane_props*2] = 0;
 			}
-			
 			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Lanes props added!"); 
 			road_props_list();
-			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "road prop start build, done!"); 
+			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road prop start build, done!"); 
 			build_props_list();
 			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "prop build, done!"); 
-			//draw_lights(0);
-			// Make a game object
-			
-			
-			// Add the light component
-			
-			//text.SetActive(true); 
-			//ChirpLog.Debug(light_info());
-			// Set the position (or any transform property) 
-			//lightGameObject.transform.position = Vector3(0.0, 5.0, 0.0);
-			//ChirpLog.Flush();
-			
-            
-			//ChirpLog.Debug(DumpAllGameObjects());  
-			
-			
-			
-            //var moon = new GameObject("light1");
-            //var moonLight = moon.AddComponent<Light>();
-			//ChirpLog.Debug(light_info());
-            //ChirpLog.Flush();
 		}
 		public void road_props_list(){
 			count_lane_prop = 0;
 			road_props_list(0,100);
-			//road_props_list(0,segments.Length);
 		}
 		public void road_props_list(int start,int end){
 			int n,i,j,k;
@@ -394,53 +341,48 @@ namespace DemoMod
 				
 				
 				)){
-				/*
-				
-				|| segments[n].Info.GetLocalizedTitle() == "Four-Lane One-Way Road with Decorative Trees"
-				|| segments[n].Info.GetLocalizedTitle() == "Four-Lane One-Way Road with Grass"
-				|| segments[n].Info.GetLocalizedTitle() == "Four-Lane One-Way Road"
-				|| segments[n].Info.GetLocalizedTitle() == "Four-Lane Road with Decorative Trees"
-				|| segments[n].Info.GetLocalizedTitle() == "Four-Lane Road with Grass"
-				|| segments[n].Info.GetLocalizedTitle() == "Four-Lane Road"
-				
-				|| segments[n].Info.GetLocalizedTitle() == "Six-Lane One-Way Road with Decorative Trees"
-				|| segments[n].Info.GetLocalizedTitle() == "Six-Lane One-Way Road with Grass"
-				|| segments[n].Info.GetLocalizedTitle() == "Six-Lane One-Way Road"
-				|| segments[n].Info.GetLocalizedTitle() == "Six-Lane Road with Decorative Trees"
-				|| segments[n].Info.GetLocalizedTitle() == "Six-Lane Road with Grass"
-				|| segments[n].Info.GetLocalizedTitle() == "Six-Lane Road"
-				*/
-				//ChirpLog.Debug("segment-" + n + ":" + segments[n].Info.GetLocalizedTitle());
-				for(i = 0;i<15&&i<segments[n].Info.m_lanes.Length;i++){
+					/*
 					
-					if(segments[n].Info.m_lanes[i].m_laneProps != null){
-					//ChirpLog.Debug("-lanes-" + i + ":" + segments[n].Info.m_lanes[i].m_laneProps.m_props.Length); 
-
-					for(j = 0;j<40&&j<segments[n].Info.m_lanes[i].m_laneProps.m_props.Length;j++){ 
-						if(segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_prop != null){
-							if(segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_prop.GetLocalizedTitle() == "PROPS_TITLE[New Street Light]:0"){
-								lane_props[k] = n;
-								lane_props[k+max_lane_props] = i;
-								lane_props[k+max_lane_props*2] = j; 
-								k++;
-								if(k == max_lane_props){
-									count_lane_prop = k; 
-									//ChirpLog.Debug("road_props:"+count_lane_prop);
-									//ChirpLog.Flush();
-									return;
+					|| segments[n].Info.GetLocalizedTitle() == "Four-Lane One-Way Road with Decorative Trees"
+					|| segments[n].Info.GetLocalizedTitle() == "Four-Lane One-Way Road with Grass"
+					|| segments[n].Info.GetLocalizedTitle() == "Four-Lane One-Way Road"
+					|| segments[n].Info.GetLocalizedTitle() == "Four-Lane Road with Decorative Trees"
+					|| segments[n].Info.GetLocalizedTitle() == "Four-Lane Road with Grass"
+					|| segments[n].Info.GetLocalizedTitle() == "Four-Lane Road"
+					
+					|| segments[n].Info.GetLocalizedTitle() == "Six-Lane One-Way Road with Decorative Trees"
+					|| segments[n].Info.GetLocalizedTitle() == "Six-Lane One-Way Road with Grass"
+					|| segments[n].Info.GetLocalizedTitle() == "Six-Lane One-Way Road"
+					|| segments[n].Info.GetLocalizedTitle() == "Six-Lane Road with Decorative Trees"
+					|| segments[n].Info.GetLocalizedTitle() == "Six-Lane Road with Grass"
+					|| segments[n].Info.GetLocalizedTitle() == "Six-Lane Road"
+					*/
+					for(i = 0;i<15&&i<segments[n].Info.m_lanes.Length;i++){
+						if(segments[n].Info.m_lanes[i].m_laneProps != null){
+							for(j = 0;j<40&&j<segments[n].Info.m_lanes[i].m_laneProps.m_props.Length;j++){ 
+								if(segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_prop != null){
+									if(segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_prop.GetLocalizedTitle() == "PROPS_TITLE[New Street Light]:0"){
+										lane_props[k] = n;
+										lane_props[k+max_lane_props] = i;
+										lane_props[k+max_lane_props*2] = j; 
+										k++;
+										if(k == max_lane_props){
+											count_lane_prop = k; 
+											//ChirpLog.Debug("road_props:"+count_lane_prop);
+											//ChirpLog.Flush();
+											return;
+										}
+									}
 								}
 							}
 						}
 					}
-					}
-				}
 				}
 			}
 			count_lane_prop = k; 
-			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road props: "+max_lane_props+"!"); 
-			//ChirpLog.Debug("road_props:"+count_lane_prop + "/"+end);
-            //ChirpLog.Flush();
+			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road props: "+max_lane_props+"!"); 
 		}
+		//This function will give some info over the in game lights
 		public string light_info()
 		{
 		  List<Light> allObjects = new List<Light>( GameObject.FindObjectsOfType<Light>() );
@@ -467,19 +409,18 @@ namespace DemoMod
 			result += "enabled: "+ obj.enabled + "\n";
 			result += "tag: "+ obj.tag + "\n";
 			result += "rot: "+ obj.transform.localEulerAngles + "\n";
-			
 			result += "\n";
-			//obj.color = Color.blue;
-			
 		  }
-
 		  return result;
 		}
+		
 		public void Update(){
 			
 			 draw_lights(0); 
 			
 		}
+		
+		//keep only the sun
 		public void clean_lights(){
 			List<Light> allObjects = new List<Light>( GameObject.FindObjectsOfType<Light>() );
 			foreach(Light obj in allObjects)
@@ -489,18 +430,19 @@ namespace DemoMod
 				}
 			}
 		}
-	public string DumpAllGameObjects()
-    {
-      List<GameObject> allObjects = new List<GameObject>( GameObject.FindObjectsOfType<GameObject>() );
-      string result = "";
-      foreach(GameObject obj in allObjects)
-      {
-        result += obj.name + "\n";
-      }
-      return result;
-    }
+		//debug function
+		public string DumpAllGameObjects()
+		{
+		  List<GameObject> allObjects = new List<GameObject>( GameObject.FindObjectsOfType<GameObject>() );
+		  string result = "";
+		  foreach(GameObject obj in allObjects)
+		  {
+			result += obj.name + "\n";
+		  }
+		  return result;
+		}
 
-		
+		//turn all lights to intensity of 0.7
 		public int Dim_all()
 		{	
 			int count = 0;
@@ -513,11 +455,6 @@ namespace DemoMod
 			return count;
 		}
     }
-
-    // Inherit interfaces and implement your mod logic here
-    // You can use as many files and subfolders as you wish to organise your code, as long
-    // as it remains located under the Source folder.
-	
 	public class MyIUserMod1: IThreadingExtension
     {
 		private MyIUserMod _mod;
@@ -533,9 +470,10 @@ namespace DemoMod
 		{
 		
 		}
-		//Thread: Main
+		
 		public void OnUpdate(float realTimeDelta, float simulationTimeDelta)
 		{
+			//check init
 			if(!_mod_loaded){
 				_mod = new MyIUserMod();
 				if(_mod.Dim_all() > 0){ 
