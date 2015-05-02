@@ -9,7 +9,7 @@ Features:
 - Add rear lights, only one the car is slow driving
 - Add lights to build props
 - Add street lights, two-lane only
-- Darken the sun
+- Darken the sun -> is controlled by Moving Sun from rmbackslash
 
 Perfomance is good after load. I hit about 30-60fps with R9 280x which is about the same without the mod.
 
@@ -23,4 +23,4 @@ Know issus:
 - Not tested with other mods
 
 ![Alt text](http://i.imgur.com/COr4l34.jpg "Screenshot")
-See http://imgur.com/a/m1o74 for more screenshots, and GIF: http://gfycat.com/HandmadeImaginativeHerring
+See http://imgur.com/a/m1o74 for more screenshots, and GIF: http://gfycat.com/HandmadeImaginativeHerring, http://gfycat.com/RepulsiveQueasyErne
