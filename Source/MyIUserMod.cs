@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using ColossalFramework;
 using ColossalFramework.UI;
 using ColossalFramework.Threading;
+using System.Text;
 
 namespace DemoMod
 {
@@ -22,6 +23,9 @@ namespace DemoMod
 		public int max_cars,max_lane_props,max_building_props;
 		public int count_build_prop,count_lane_prop;
 		public int updated_segment_last;
+		
+		
+		
 		
         public string Name 
         {
@@ -49,7 +53,7 @@ namespace DemoMod
 			lightGameObject.SetActive(false); 
 		}
 		public void draw_lights(int mode){
-			ChirpLog.Debug("Start"); 
+			//ChirpLog.Debug("Start"); 
 			Color kleur = Color.white;
 			Vector3 position  = Vector3.zero;
 			Quaternion orientation = Quaternion.identity;
@@ -136,7 +140,7 @@ namespace DemoMod
 			}
 			//ChirpLog.Debug(n + " Lights after cars"); 
 			//ChirpLog.Flush();
-			
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, n + " Lights after cars"); 
 			Vector3 poss = Vector3.zero;
 			Vector3 pose = Vector3.zero;
 			Vector3 positions = Vector3.zero;
@@ -180,6 +184,7 @@ namespace DemoMod
 			}
 			//ChirpLog.Debug(n + " Lights after props, lane props: " + count_lane_prop); 
 			//ChirpLog.Flush();
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, n + " Lights after props, lane props: " + count_lane_prop); 
 			//road lights
 			kleur.r = 1f; 
 			kleur.g = 0.96f;
@@ -286,6 +291,18 @@ namespace DemoMod
 			ChirpLog.Debug("There were "+count_build_prop + " building props lamps.");
             ChirpLog.Flush();
 		}
+		public void day(){
+			int n,i;
+			//lane_props = new int[max_lane_props*3];
+			//count_lane_prop = 0;
+			n = 0;
+			//updated_segment_last = 0;
+			//count_build_prop = 0;
+			for(i = n;n<max_cars;n++){
+				lichten[n].SetActive(false);
+				
+			}
+		}
 		public void start_game(){
 			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Begin init"); 
 			vehicles = vehicleManager.m_vehicles.m_buffer;
@@ -320,9 +337,54 @@ namespace DemoMod
 			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Lanes props added!"); 
 			road_props_list();
 			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road prop start build, done!"); 
-			build_props_list();
+			//build_props_list(); 
 			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "prop build, done!"); 
+			//show_textuers();
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "All " + Resources.FindObjectsOfTypeAll(typeof(UnityEngine.Object)).Length);
+		
+		//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "AudioClips " + Resources.FindObjectsOfTypeAll(typeof(AudioClip)).Length);
+		//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Meshes " + Resources.FindObjectsOfTypeAll(typeof(Mesh)).Length);
+		//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Materials " + Resources.FindObjectsOfTypeAll(typeof(Material)).Length);
+		//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "GameObjects " + Resources.FindObjectsOfTypeAll(typeof(GameObject)).Length);
+		//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Components " + Resources.FindObjectsOfTypeAll(typeof(Component)).Length);
+			
+			
 		}
+		public void show_textuers(){
+			List<Material> allObjects = new List<Material>( GameObject.FindObjectsOfType<Material>() );
+			string result = "";
+			int c = 0;
+			foreach(Material obj in allObjects)
+		  {
+			if(c > 0 && c < 2000){ 
+			result = "Name: "+ obj.name;
+			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, result);
+			//result = "_MainTex: "+ obj.GetTexture("_MainTex");  
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, result);
+			//result = "_BumpMap: "+ obj.GetTexture("_BumpMap");  
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, result);
+			result = "_Cube: "+ obj.GetTexture("_Cube");  
+			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, result);
+			}
+			c++;
+			//result += "height: "+ obj.height + "\n"; 
+			//result += "\n";
+		  }
+		  
+		}
+		static string ConvertStringArrayToString(string[] array)
+    {
+	//
+	// Concatenate all the elements into a StringBuilder.
+	//
+	StringBuilder builder = new StringBuilder();
+	foreach (string value in array)
+	{
+	    builder.Append(value);
+	    builder.Append('.');
+	}
+	return builder.ToString();
+    }
 		public void road_props_list(){
 			count_lane_prop = 0;
 			road_props_list(0,100);
@@ -380,7 +442,7 @@ namespace DemoMod
 				}
 			}
 			count_lane_prop = k; 
-			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road props: "+max_lane_props+"!"); 
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road props: "+max_lane_props+"!"); 
 		}
 		//This function will give some info over the in game lights
 		public string light_info()
@@ -410,6 +472,7 @@ namespace DemoMod
 			result += "tag: "+ obj.tag + "\n";
 			result += "rot: "+ obj.transform.localEulerAngles + "\n";
 			result += "\n";
+			
 		  }
 		  return result;
 		}
@@ -454,11 +517,44 @@ namespace DemoMod
 			}
 			return count;
 		}
+		public float get_info_main_light(){
+			List<Light> allObjects = new List<Light>( GameObject.FindObjectsOfType<Light>() );
+			string result = "";
+			foreach(Light obj in allObjects)
+			{
+				//obj.intensity = 0.7f;
+				result += "Name: "+ obj.name + "\n";
+			result += "color: "+ obj.color + "\n";
+			result += "intensity: "+ obj.intensity + "\n";
+			result += "range: "+ obj.range + "\n";
+			result += "spotAngle: "+ obj.spotAngle + "\n";
+			result += "transform.position: "+ obj.transform.position + "\n";
+			result += "transform.rotation: "+ obj.transform.rotation + "\n";
+			result += "type: "+ obj.type + "\n";
+			result += "renderMode: "+ obj.renderMode + "\n";
+			result += "bounceIntensity: "+ obj.bounceIntensity + "\n";
+			result += "flare: "+ obj.flare + "\n";
+			result += "shadowBias: "+ obj.shadowBias + "\n";
+			result += "shadows: "+ obj.shadows + "\n";
+			result += "shadowStrength: "+ obj.shadowStrength + "\n";
+			result += "enabled: "+ obj.enabled + "\n";
+			result += "tag: "+ obj.tag + "\n";
+			result += "rot: "+ obj.transform.localEulerAngles + "\n";
+			result += "\n";
+			//ChirpLog.Debug(result);
+            //ChirpLog.Flush();
+			if(obj.name == "Directional Light"){
+				return obj.transform.localEulerAngles.x; 
+			}
+			}
+			return 0.0f;
+		}
     }
 	public class MyIUserMod1: IThreadingExtension
     {
 		private MyIUserMod _mod;
 		private bool _mod_loaded = false;
+		private bool night = false;
 		
 		public void OnCreated(IThreading threading)
 		{
@@ -473,6 +569,8 @@ namespace DemoMod
 		
 		public void OnUpdate(float realTimeDelta, float simulationTimeDelta)
 		{
+			try
+{
 			//check init
 			if(!_mod_loaded){
 				_mod = new MyIUserMod();
@@ -482,20 +580,32 @@ namespace DemoMod
 					ChirpLog.Flush();
 					_mod.start_game();
 					_mod_loaded = true;
+					DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Light level: " + _mod.get_info_main_light()); 
+					
 				}
 			}else{
-				_mod.Update();
-				//slow road updater
 				if(_mod.updated_segment_last <_mod.segments.Length && _mod.count_build_prop < _mod.max_lane_props){ 
-					_mod.road_props_list(_mod.updated_segment_last,_mod.updated_segment_last+150);
-					_mod.updated_segment_last = _mod.updated_segment_last + 150;
+					_mod.road_props_list(_mod.updated_segment_last,_mod.updated_segment_last+50);
+					_mod.updated_segment_last = _mod.updated_segment_last + 50;
 					//_mod.updated_segment_last = 0;
 					//_mod.count_build_prop = 0;
 				}
 				
+				//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Light level: " + _mod.get_info_main_light()); 
+				if(_mod.get_info_main_light() < 40){
+					//slow road updater
+				
+				
+					_mod.Update();
+				}else{
+					_mod.day();
+				}
+				
 				
 			}
-			
+			}catch
+{
+}
 		}
 		//Thread: Simulation
 		public void OnBeforeSimulationTick()
