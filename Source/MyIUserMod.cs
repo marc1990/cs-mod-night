@@ -49,18 +49,19 @@ namespace DemoMod
 			
 			// Add the light component
 			Light lightComp = lightGameObject.AddComponent<Light>();
-			lightComp.shadows = LightShadows.None;
+			lightComp.shadows = LightShadows.None; 
 			lightGameObject.SetActive(false); 
 		}
 		public void draw_lights(int mode){
-			//ChirpLog.Debug("Start"); 
+			ChirpLog.Debug("Start draw_lights"); 
 			Color kleur = Color.white;
 			Vector3 position  = Vector3.zero;
 			Quaternion orientation = Quaternion.identity;
-			int i,j,d,m;
+			int i,j,d,m,ko;
 			var cam_info = Camera.main;
 			Light lightComp;
 			int n = 0;
+			float working = 0.0f;
 			Vector3 speed;
 			for(i = 0;i<vehicles.Length;i++){
 				
@@ -138,7 +139,8 @@ namespace DemoMod
 					i = 100000;
 				 }
 			}
-			//ChirpLog.Debug(n + " Lights after cars"); 
+			
+			ChirpLog.Debug(n + " Lights after cars"); 
 			//ChirpLog.Flush();
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, n + " Lights after cars"); 
 			Vector3 poss = Vector3.zero;
@@ -147,7 +149,9 @@ namespace DemoMod
 			Vector3 positione = Vector3.zero;
 			Vector3 middlePos1 = Vector3.zero;
 			Vector3 middlePos2 = Vector3.zero;
-			float afstand;
+			float afstand,real_pitch;
+			float lamps;
+			/*
 			//ChirpLog.Flush();
 			kleur.r = 1f;  
 			kleur.g = 0.96f;
@@ -182,7 +186,9 @@ namespace DemoMod
 					d = 100000;
 				 }
 			}
-			//ChirpLog.Debug(n + " Lights after props, lane props: " + count_lane_prop); 
+			*/
+			
+			ChirpLog.Debug(n + " Lights after props, lane props: " + count_lane_prop); 
 			//ChirpLog.Flush();
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, n + " Lights after props, lane props: " + count_lane_prop); 
 			//road lights
@@ -191,68 +197,109 @@ namespace DemoMod
 			kleur.b = 0.7f;
 			kleur.a = 1f;
 			for(d = 0;d < count_lane_prop;d++){
-				//ChirpLog.Debug(d + " regel"); 
+				//ChirpLog.Debug(d + " regel");  
 				m = lane_props[d];
 				i = lane_props[d+max_lane_props];
 				j = lane_props[d+max_lane_props*2];
 				if(segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_prop != null){
 					position = netMan.m_nodes.m_buffer[segments[m].m_startNode].m_position;
 					segments[m].GetClosestPositionAndDirection(position,out positions,out poss);
+					//poss =  segments[m].m_startDirection;
+					
 					position = netMan.m_nodes.m_buffer[segments[m].m_endNode].m_position;
 					segments[m].GetClosestPositionAndDirection(position,out positione,out pose);
+					//pose =  segments[m].m_endDirection;
 					NetSegment.CalculateMiddlePoints(positions,poss,positione,pose,true,true,out middlePos1,out middlePos2,out afstand);
 					if(inrange(position)){
-						
-							if(afstand < 80f){
-								position = positions+poss*afstand/2 ;
-								lichten[n].transform.position = position + new Vector3(0f,5f,0f); 
-								lichten[n].transform.LookAt(position);
-								lichten[n].SetActive(true);
-								lightComp = lichten[n].GetComponent<Light>();
-								lightComp.type = LightType.Spot;
-								lightComp.intensity = 6; 
-								lightComp.spotAngle = 150f;
-								lightComp.color = kleur;
-								lightComp.range = 15f;
-								n++;
-							}else{
-								position = positions+poss*20f;
-								lichten[n].transform.position = position + new Vector3(0f,5f,0f); 
-								lichten[n].transform.LookAt(position);
-								lichten[n].SetActive(true);
-								lightComp = lichten[n].GetComponent<Light>();
-								lightComp.type = LightType.Spot;
-								lightComp.intensity = 6; 
-								lightComp.spotAngle = 150f;
-								lightComp.color = kleur;
-								lightComp.range = 15f;
-								n++;
-								position = positione-pose*20f;
-								lichten[n].transform.position = position + new Vector3(0f,5f,0f); 
-								lichten[n].transform.LookAt(position);
-								lichten[n].SetActive(true);
-								lightComp = lichten[n].GetComponent<Light>();
-								lightComp.type = LightType.Spot;
-								lightComp.intensity = 6; 
-								lightComp.spotAngle = 150f;
-								lightComp.color = kleur;
-								lightComp.range = 15f;
-								n++;
-							}
+								if(segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_minLength < afstand){ 
+									// 
+									afstand = afstand - segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_segmentOffset;
+									lamps = (int)((afstand)/(segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_repeatDistance ) + 0.53f );
+									//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Lamps: " + segments[m].Info.m_lanes[i].m_stopOffset); 
+									
+									real_pitch = (afstand+0.5f*segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_repeatDistance)/lamps;
+									
+									
+									if((segments[m].m_flags & NetSegment.Flags.End  ) ==NetSegment.Flags.End  ){
+										working = real_pitch*0.5f;
+										//afstand = afstand-real_pitch*0.5f;
+										real_pitch = (afstand+0.5f*segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_repeatDistance-10f)/lamps;
+										//lamps = 3;
+									}else{
+										working = 0; 
+										real_pitch = (afstand+0.5f*segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_repeatDistance-20f)/lamps;  
+										//lamps = 1;
+									}
+									
+									for(ko = 0;ko < lamps;ko++){
+										//if(working >  segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_segmentOffset){
+											//- segments[m].Info.m_lanes[i].m_lawneProps.m_props[j].m_position 
+											if(lamps == 1){ 
+												 //ChirpLog.Debug("Flags: " + segments[m].m_flags);  
+									//ChirpLog.Debug("m_startDirection: " + segments[m].m_startDirection); 
+									//ChirpLog.Debug("m_endDirection: " + segments[m].m_endDirection); 
+									//ChirpLog.Debug("poss: " + poss); 
+									//ChirpLog.Debug("pose: " + pose); 
+									//ChirpLog.Debug("m_verticalOffset: " + segments[m].Info.m_lanes[i].m_verticalOffset); 
+												if((segments[m].m_flags & NetSegment.Flags.End  ) ==NetSegment.Flags.End  ){
+													position = positions + ((afstand+10f)/2f)*segments[m].m_startDirection +segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_position; 
+													 
+												}else{
+													position = positions + ((afstand)/2f)*poss +ko*Vector3.forward+segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_position;
+												}
+												lichten[n].transform.position = position + new Vector3(0f,10f,0f); 
+												lichten[n].transform.LookAt(position);
+												lichten[n].SetActive(true); 
+												lightComp = lichten[n].GetComponent<Light>();
+												lightComp.type = LightType.Spot;
+												lightComp.intensity = 150; 
+												lightComp.spotAngle = 150f; 
+												lightComp.color = kleur;
+												lightComp.range = 15f; 
+												n++; 
+											}
+											//working = working - segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_repeatDistance;
+										
+										
+										if(lamps > 1 ){
+											//center at = (afstand)/2f
+											if((segments[m].m_flags & NetSegment.Flags.End  ) ==NetSegment.Flags.End  ){
+												position = positions + (afstand/2f - real_pitch/2f + real_pitch*ko + 5f)*poss  ; 
+											}else{
+												position = positions + (afstand/2f - real_pitch/2f + real_pitch*ko)*poss  ; 
+											}
+											lichten[n].transform.position = position + new Vector3(0f,10f,0f); 
+											lichten[n].transform.LookAt(position);
+											lichten[n].SetActive(true); 
+											lightComp = lichten[n].GetComponent<Light>();
+											lightComp.type = LightType.Spot;
+											lightComp.intensity = 6; 
+											lightComp.spotAngle = 150f; 
+											lightComp.color = kleur;
+											lightComp.range = 15f;
+											n++; 
+											//working = working + real_pitch;
+										}
+									}
+								}
+							
 						
 					}
 					}
 				//}
 				
-				if(n == max_cars || n+1 == max_cars || n+2 == max_cars || n+3 == max_cars){
+				if(n > max_cars){
 					d = 100000;
 				 }
 			}
-			
-			for(i = n;n<max_cars;n++){
+			ChirpLog.Debug(n + " Lights !"); 
+			//ChirpLog.Flush();
+			for(i = n;n<256;n++){
 				lichten[n].SetActive(false);
 				
 			}
+			ChirpLog.Debug("Done"); 
+			//ChirpLog.Flush();
 		}
 		//will check if the object is on screen + marge(s)
 		public bool inrange(Vector3 position){
@@ -269,7 +316,7 @@ namespace DemoMod
 			int i,j;
 			int n=0; 
 			for(i = 0;i<buildings.Length;i++){
-				if(buildings[i].Info != null){
+				if(buildings[i].Info != null){  
 					if(buildings[i].Info.m_alreadyUnlocked == false){
 						var propsjes = buildings[i].Info.m_props;
 						for(j = 0;j<propsjes.Length;j++){
@@ -288,8 +335,8 @@ namespace DemoMod
 				}
 			}
 			count_build_prop = n;
-			ChirpLog.Debug("There were "+count_build_prop + " building props lamps.");
-            ChirpLog.Flush();
+			//ChirpLog.Debug("There were "+count_build_prop + " building props lamps.");
+           // ChirpLog.Flush();
 		}
 		public void day(){
 			int n,i;
@@ -304,7 +351,7 @@ namespace DemoMod
 			}
 		}
 		public void start_game(){
-			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Begin init"); 
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Begin init"); 
 			vehicles = vehicleManager.m_vehicles.m_buffer;
 			buildings = buildingManager.m_buildings.m_buffer;
 			segments = netMan.m_segments.m_buffer;
@@ -322,7 +369,8 @@ namespace DemoMod
 			for(n = 0;n<max_cars;n++){
 				add_light(position,orientation,n,n);
 			}
-			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, max_cars + " lights add!"); 
+			max_cars = 32;//is equal to max number of lights
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, max_cars + " lights add!"); 
 			//init build props array
 			for(n = 0;n<max_building_props;n++){
 				build_props[n] = 0; 
@@ -334,11 +382,11 @@ namespace DemoMod
 				lane_props[n+max_lane_props] = 0;
 				lane_props[n+max_lane_props*2] = 0;
 			}
-			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Lanes props added!"); 
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Lanes props added!"); 
 			road_props_list();
-			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road prop start build, done!"); 
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road prop start build, done!"); 
 			//build_props_list(); 
-			DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "prop build, done!"); 
+			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "prop build, done!"); 
 			//show_textuers();
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "All " + Resources.FindObjectsOfTypeAll(typeof(UnityEngine.Object)).Length);
 		
@@ -428,6 +476,13 @@ namespace DemoMod
 										lane_props[k+max_lane_props] = i;
 										lane_props[k+max_lane_props*2] = j; 
 										k++;
+										//ChirpLog.Debug("i:"+i);
+										//ChirpLog.Debug("m_angle:"+segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_angle);
+										//ChirpLog.Debug("m_segmentOffset:"+segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_segmentOffset);
+										//ChirpLog.Debug("m_repeatDistance:"+segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_repeatDistance);
+										//ChirpLog.Debug("m_minLength:"+segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_minLength);
+										//ChirpLog.Debug("m_cornerAngle:"+segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_cornerAngle);
+										//ChirpLog.Debug("m_probability:"+segments[n].Info.m_lanes[i].m_laneProps.m_props[j].m_probability);
 										if(k == max_lane_props){
 											count_lane_prop = k; 
 											//ChirpLog.Debug("road_props:"+count_lane_prop);
@@ -443,6 +498,7 @@ namespace DemoMod
 			}
 			count_lane_prop = k; 
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road props: "+max_lane_props+"!"); 
+			//ChirpLog.Flush();
 		}
 		//This function will give some info over the in game lights
 		public string light_info()
@@ -519,33 +575,12 @@ namespace DemoMod
 		}
 		public float get_info_main_light(){
 			List<Light> allObjects = new List<Light>( GameObject.FindObjectsOfType<Light>() );
-			string result = "";
 			foreach(Light obj in allObjects)
 			{
-				//obj.intensity = 0.7f;
-				result += "Name: "+ obj.name + "\n";
-			result += "color: "+ obj.color + "\n";
-			result += "intensity: "+ obj.intensity + "\n";
-			result += "range: "+ obj.range + "\n";
-			result += "spotAngle: "+ obj.spotAngle + "\n";
-			result += "transform.position: "+ obj.transform.position + "\n";
-			result += "transform.rotation: "+ obj.transform.rotation + "\n";
-			result += "type: "+ obj.type + "\n";
-			result += "renderMode: "+ obj.renderMode + "\n";
-			result += "bounceIntensity: "+ obj.bounceIntensity + "\n";
-			result += "flare: "+ obj.flare + "\n";
-			result += "shadowBias: "+ obj.shadowBias + "\n";
-			result += "shadows: "+ obj.shadows + "\n";
-			result += "shadowStrength: "+ obj.shadowStrength + "\n";
-			result += "enabled: "+ obj.enabled + "\n";
-			result += "tag: "+ obj.tag + "\n";
-			result += "rot: "+ obj.transform.localEulerAngles + "\n";
-			result += "\n";
-			//ChirpLog.Debug(result);
-            //ChirpLog.Flush();
-			if(obj.name == "Directional Light"){
-				return obj.transform.localEulerAngles.x; 
-			}
+				
+				if(obj.name == "Directional Light"){
+					return obj.transform.localEulerAngles.x; 
+				}
 			}
 			return 0.0f;
 		}
@@ -555,10 +590,11 @@ namespace DemoMod
 		private MyIUserMod _mod;
 		private bool _mod_loaded = false;
 		private bool night = false;
-		
+		private float avg_fps = 0f;
+		private int frame_counter = 0;
 		public void OnCreated(IThreading threading)
 		{
-			ChirpLog.Debug("IThreading Created");
+			//ChirpLog.Debug("IThreading Created");
 		 
 			
 		}
@@ -571,37 +607,64 @@ namespace DemoMod
 		{
 			try
 {
+	ChirpLog.Debug("Start with all"); 
+				//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " fps: " + 1f/realTimeDelta); 
 			//check init
 			if(!_mod_loaded){
 				_mod = new MyIUserMod();
 				if(_mod.Dim_all() > 0){ 
 					
-					ChirpLog.Debug("StartGame");
-					ChirpLog.Flush();
+					//ChirpLog.Debug("StartGame");
+					//ChirpLog.Flush();
 					_mod.start_game();
 					_mod_loaded = true;
-					DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Light level: " + _mod.get_info_main_light()); 
+					//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Light level: " + _mod.get_info_main_light()); 
 					
 				}
 			}else{
+					ChirpLog.Debug("Delta"); 
+				avg_fps = avg_fps*0.97f+1f/realTimeDelta*0.03f;
+				if(  _mod.max_cars < 200){
+					if(avg_fps > 35){
+						_mod.max_cars = _mod.max_cars + 1;
+						//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Light max:" + _mod.max_cars); 
+					}
+				}
+				if( _mod.max_cars > 32){
+					if(avg_fps < 30){
+						_mod.max_cars = _mod.max_cars - 1;
+						//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Light max:" + _mod.max_cars + " reduced"); 
+					}
+				}
+				ChirpLog.Debug("A"); 
 				if(_mod.updated_segment_last <_mod.segments.Length && _mod.count_build_prop < _mod.max_lane_props){ 
-					_mod.road_props_list(_mod.updated_segment_last,_mod.updated_segment_last+50);
-					_mod.updated_segment_last = _mod.updated_segment_last + 50;
+					_mod.road_props_list(_mod.updated_segment_last,_mod.updated_segment_last+500);
+					_mod.updated_segment_last = _mod.updated_segment_last + 500;
 					//_mod.updated_segment_last = 0;
 					//_mod.count_build_prop = 0;
 				}
-				
+				ChirpLog.Debug("B"); 
 				//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, " Light level: " + _mod.get_info_main_light()); 
-				if(_mod.get_info_main_light() < 40){
+				if(frame_counter > 10){
+					if(_mod.get_info_main_light() < 40){
+						night = true;
+					}else{
+						night = false;
+					}
+					frame_counter = 0;
+				}
+				frame_counter++;
+				if(night){
 					//slow road updater
-				
+				ChirpLog.Debug("C"); 
 				
 					_mod.Update();
 				}else{
 					_mod.day();
 				}
 				
-				
+				ChirpLog.Debug("Done with all"); 
+				//ChirpLog.Flush();
 			}
 			}catch
 {
