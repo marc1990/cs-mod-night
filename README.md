@@ -15,10 +15,7 @@ Perfomance is good after load. I hit about 30-60fps with R9 280x which is about 
 
 
 Know issus:
-- Sometime it will not start -> try recompiling by adding space and save it
 - When the mod is staterd the framerate drops because all street lights are added.
-- There is a big chance that the game will crash
-- Big maps will ofter result in problems.
 - Sometimes light flicker because of max number of lights
 - Not tested with other mods
 
