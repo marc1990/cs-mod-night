@@ -151,7 +151,7 @@ namespace DemoMod
 			Vector3 middlePos2 = Vector3.zero;
 			float afstand,real_pitch;
 			float lamps;
-			/*
+			
 			//ChirpLog.Flush();
 			kleur.r = 1f;  
 			kleur.g = 0.96f;
@@ -186,9 +186,9 @@ namespace DemoMod
 					d = 100000;
 				 }
 			}
-			*/
 			
-			ChirpLog.Debug(n + " Lights after props, lane props: " + count_lane_prop); 
+			
+			//ChirpLog.Debug(n + " Lights after props, lane props: " + count_lane_prop); 
 			//ChirpLog.Flush();
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, n + " Lights after props, lane props: " + count_lane_prop); 
 			//road lights
@@ -247,7 +247,7 @@ namespace DemoMod
 												}else{
 													position = positions + ((afstand)/2f)*poss +ko*Vector3.forward+segments[m].Info.m_lanes[i].m_laneProps.m_props[j].m_position;
 												}
-												lichten[n].transform.position = position + new Vector3(0f,10f,0f); 
+												lichten[n].transform.position = position + new Vector3(0f,7f,0f); 
 												lichten[n].transform.LookAt(position);
 												lichten[n].SetActive(true); 
 												lightComp = lichten[n].GetComponent<Light>();
@@ -268,7 +268,7 @@ namespace DemoMod
 											}else{
 												position = positions + (afstand/2f - real_pitch/2f + real_pitch*ko)*poss  ; 
 											}
-											lichten[n].transform.position = position + new Vector3(0f,10f,0f); 
+											lichten[n].transform.position = position + new Vector3(0f,7f,0f); 
 											lichten[n].transform.LookAt(position);
 											lichten[n].SetActive(true); 
 											lightComp = lichten[n].GetComponent<Light>();
@@ -362,7 +362,7 @@ namespace DemoMod
 			Quaternion orientation = Quaternion.identity;
 			max_cars = 256;//is equal to max number of lights
 			max_lane_props = 2048 ; 
-			max_building_props = 256;
+			max_building_props = 128;
 			lichten = new GameObject[max_cars];
 			build_props = new int[max_building_props*2];
 			lane_props = new int[max_lane_props*3];
@@ -385,7 +385,7 @@ namespace DemoMod
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Lanes props added!"); 
 			road_props_list();
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "Road prop start build, done!"); 
-			//build_props_list(); 
+			build_props_list(); 
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "prop build, done!"); 
 			//show_textuers();
 			//DebugOutputPanel.AddMessage (ColossalFramework.Plugins.PluginManager.MessageType.Message, "All " + Resources.FindObjectsOfTypeAll(typeof(UnityEngine.Object)).Length);
