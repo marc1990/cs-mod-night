@@ -7,7 +7,7 @@ Feel free to help.
 Features:
 - Add head lights
 - Add rear lights, only one the car is slow driving
-- Add lights to build props
+- Add lights to build props(Currently not working)
 - Add street lights, two-lane only
 - Darken the sun -> is controlled by Moving Sun from rmbackslash
 
