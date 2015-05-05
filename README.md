@@ -21,3 +21,5 @@ Know issus:
 
 ![Alt text](http://i.imgur.com/COr4l34.jpg "Screenshot")
 See http://imgur.com/a/m1o74 for more screenshots, and GIF: http://gfycat.com/HandmadeImaginativeHerring, http://gfycat.com/RepulsiveQueasyErne
+
+Steam: http://steamcommunity.com/sharedfiles/filedetails/?id=435903129
