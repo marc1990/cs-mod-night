@@ -1,5 +1,9 @@
 # Cities Skylines Night mod
 
+**You don't need this mode, it is now part of the base game.**
+
+---
+
 Current state: Work In progress
 
 Feel free to help.
